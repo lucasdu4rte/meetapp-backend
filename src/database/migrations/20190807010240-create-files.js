@@ -3,17 +3,17 @@ module.exports = {
     return queryInterface.createTable('files', {
       id: {
         type: Sequelize.INTEGER,
-        allowNul: false,
+        allowNull: false,
         autoIncrement: true,
         primaryKey: true,
       },
       name: {
         type: Sequelize.STRING,
-        allowNul: false,
+        allowNull: false,
       },
       path: {
         type: Sequelize.STRING,
-        allowNul: false,
+        allowNull: false,
         unique: true,
       },
       created_at: {
