@@ -28,6 +28,14 @@ class User extends Model {
   checkPassword(password) {
     return bcrypt.compare(password, this.password_hash);
   }
+
+  static associate(models) {
+    this.belongsToMany(models.Event, {
+      through: 'users-events',
+      foreignKey: 'user_id',
+      as: 'events',
+    });
+  }
 }
 
 export default User;
