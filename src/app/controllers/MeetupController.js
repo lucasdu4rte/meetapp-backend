@@ -1,13 +1,13 @@
 import * as Yup from 'yup';
 import { startOfHour, parseISO, isBefore, isAfter } from 'date-fns';
-import Event from '../models/Event';
+import Meetup from '../models/Meetup';
 import User from '../models/User';
 
-class EventController {
+class MeetupController {
   async index(req, res) {
     const { page = 1 } = req.query;
 
-    const events = await Event.findAll({
+    const meetups = await Meetup.findAll({
       // where: { provider_id: req.userId },
       order: ['date'],
       limit: 20,
@@ -21,7 +21,7 @@ class EventController {
       ],
     });
 
-    return res.json(events);
+    return res.json(meetups);
   }
 
   async store(req, res) {
@@ -43,17 +43,17 @@ class EventController {
     const { userId } = req;
 
     /**
-     * Verifique se o evento já foi realizado
+     * Verifique se o meetup já foi realizado
      */
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
       return res
         .status(400)
-        .json({ error: 'Não é permitido criar evento com datas passadas' });
+        .json({ error: 'Não é permitido criar meetup com datas passadas' });
     }
 
-    const event = await Event.create({
+    const meetup = await Meetup.create({
       title,
       description,
       localization,
@@ -62,21 +62,21 @@ class EventController {
       provider_id: userId,
     });
 
-    return res.json(event);
+    return res.json(meetup);
   }
 
   async update(req, res) {
     const { id } = req.params;
     const { userId } = req;
 
-    const checkUserIsProvider = await Event.findOne({
+    const checkUserIsProvider = await Meetup.findOne({
       where: { id, provider_id: userId },
     });
 
     if (!checkUserIsProvider) {
       return res
         .status(401)
-        .json({ error: 'Usuário não é o organizador deste evento' });
+        .json({ error: 'Usuário não é o organizador deste meetup' });
     }
 
     const schema = Yup.object().shape({
@@ -94,19 +94,19 @@ class EventController {
     const { title, description, localization, date, banner } = req.body;
 
     /**
-     * Verifique se o evento já foi realizado
+     * Verifique se o meetup já foi realizado
      */
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
       return res
         .status(400)
-        .json({ error: 'Não é permitido alterar um evento que já realizado' });
+        .json({ error: 'Não é permitido alterar um meetup que já realizado' });
     }
 
-    const event = await Event.findByPk(id);
+    const meetup = await Meetup.findByPk(id);
 
-    const updatedEvent = await event.update({
+    const updatedMeetup = await meetup.update({
       title,
       description,
       localization,
@@ -114,45 +114,45 @@ class EventController {
       banner,
     });
 
-    return res.json(updatedEvent);
+    return res.json(updatedMeetup);
   }
 
   async destroy(req, res) {
     const { id } = req.params;
     const { userId } = req;
 
-    const event = await Event.findOne({
+    const meetup = await Meetup.findOne({
       where: { id, provider_id: userId },
     });
 
-    if (!event) {
-      return res.status(404).json({ error: 'Evento não encontrado' });
+    if (!meetup) {
+      return res.status(404).json({ error: 'meetup não encontrado' });
     }
 
     /**
-     * Check user is provider of Event
+     * Check user is provider of Meetup
      */
-    if (event.provider_id !== userId) {
+    if (meetup.provider_id !== userId) {
       return res
         .status(401)
-        .json({ error: 'Usuário não é organizador deste evento' });
+        .json({ error: 'Usuário não é organizador deste meetup' });
     }
 
     /**
-     * Check if the event has already been held
+     * Check if the meetup has already been held
      */
-    const hourStart = startOfHour(parseISO(event.date));
+    const hourStart = startOfHour(parseISO(meetup.date));
 
     if (isAfter(hourStart, new Date())) {
       return res
         .status(400)
-        .json({ error: 'Evento já realizado não é permitido editar' });
+        .json({ error: 'Meetup já realizado não é permitido editar' });
     }
 
-    await event.destroy();
+    await meetup.destroy();
 
-    return res.json(event);
+    return res.json(meetup);
   }
 }
 
-export default new EventController();
+export default new MeetupController();

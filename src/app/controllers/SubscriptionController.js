@@ -5,94 +5,97 @@ import {
   isSameDay,
   isSameHour,
 } from 'date-fns';
-import Event from '../models/Event';
+import Meetup from '../models/Meetup';
 import User from '../models/User';
 // import User from '../models/User';
 
 class SubscriptionController {
   async index(req, res) {
     const { userId } = req;
-    const userWithEvents = await User.findByPk(userId, {
+    const userWithMeetups = await User.findByPk(userId, {
       include: [
         {
-          model: Event,
-          as: 'events',
+          model: Meetup,
+          as: 'meetups',
           through: { attributes: [] },
         },
       ],
     });
 
-    return res.json(userWithEvents.events);
+    return res.json(userWithMeetups.meetups);
   }
 
   async update(req, res) {
     const { userId } = req;
-    const { id: eventId } = req.params;
-    const event = await Event.findByPk(eventId);
+    const { id: meetupId } = req.params;
+    const meetup = await Meetup.findByPk(meetupId);
 
     /**
      * Verifique se o usuário não é provedor
      */
-    if (event.provider_id === userId) {
+    if (meetup.provider_id === userId) {
       return res.status(401).json({
-        error: 'O organizador do evento não pode se inscrever no evento',
+        error:
+          'O organizador do meetup não pode se inscrever no próprio meetup',
       });
     }
 
     /**
-     * Verifique se o evento já foi realizado
+     * Verifique se o meetup já foi realizado
      */
-    const hourStart = startOfHour(parseISO(event.date));
+    const hourStart = startOfHour(parseISO(meetup.date));
 
     if (isAfter(hourStart, new Date())) {
       return res.status(400).json({
-        error: 'Evento já realizado não é permitido se inscrever',
+        error: 'meetup já realizado não é permitido se inscrever',
       });
     }
 
     // O usuário não pode se inscrever em dois meetups que acontecem no mesmo horário.
-    const userWithEvents = await User.findByPk(userId, {
+    const userWithMeetups = await User.findByPk(userId, {
       include: [
         {
-          model: Event,
-          as: 'events',
+          model: Meetup,
+          as: 'meetups',
           through: { attributes: [] },
         },
       ],
     });
 
-    const checkEventSameDateHour = userWithEvents.events.find(currentEvent => {
-      return (
-        isSameDay(parseISO(currentEvent.date), parseISO(event.date)) &&
-        isSameHour(parseISO(currentEvent.date), parseISO(event.date))
-      );
-    });
+    const checkMeetupSameDateHour = userWithMeetups.meetups.find(
+      currentMeetup => {
+        return (
+          isSameDay(parseISO(currentMeetup.date), parseISO(meetup.date)) &&
+          isSameHour(parseISO(currentMeetup.date), parseISO(meetup.date))
+        );
+      }
+    );
 
-    if (checkEventSameDateHour) {
+    if (checkMeetupSameDateHour) {
       return res.status(400).json({
         error: 'Não permitido se inscrever em um meetup com o mesmo hórario',
       });
     }
 
-    await event.addUser(userId);
+    await meetup.addUser(userId);
 
-    return res.json(event);
+    return res.json(meetup);
   }
 
   async delete(req, res) {
     const { userId } = req;
-    const { id: eventId } = req.params;
-    const event = await Event.findByPk(eventId);
+    const { id: meetupId } = req.params;
+    const meetup = await Meetup.findByPk(meetupId);
 
-    if (event.provider_id === userId) {
+    if (meetup.provider_id === userId) {
       return res.json(401).json({
-        error: 'O organizador do evento não pode se inscrever no evento',
+        error: 'O organizador do meetup não pode se inscrever no meetup',
       });
     }
 
-    await event.removeUser(userId);
+    await meetup.removeUser(userId);
 
-    return res.json(event);
+    return res.json(meetup);
   }
 }
 

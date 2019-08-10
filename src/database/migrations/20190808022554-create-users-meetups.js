@@ -1,6 +1,6 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('users-events', {
+    return queryInterface.createTable('users-meetups', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -13,9 +13,9 @@ module.exports = {
         onDelete: 'CASCADE',
         allowNull: false,
       },
-      event_id: {
+      meetup_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'events', key: 'id' },
+        references: { model: 'meetups', key: 'id' },
         onDelete: 'CASCADE',
         allowNull: false,
       },
@@ -31,6 +31,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable('users-events');
+    return queryInterface.dropTable('users-meetups');
   },
 };

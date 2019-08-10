@@ -9,7 +9,6 @@ class User extends Model {
         email: Sequelize.STRING,
         password: Sequelize.VIRTUAL,
         password_hash: Sequelize.STRING,
-        provider: Sequelize.BOOLEAN,
       },
       {
         sequelize,
@@ -30,10 +29,11 @@ class User extends Model {
   }
 
   static associate(models) {
-    this.belongsToMany(models.Event, {
-      through: 'users-events',
+    this.belongsTo(models.File, { foreignKey: 'avatar_id', as: 'avatar' });
+    this.belongsToMany(models.Meetup, {
+      through: 'users-meetups',
       foreignKey: 'user_id',
-      as: 'events',
+      as: 'meetups',
     });
   }
 }
