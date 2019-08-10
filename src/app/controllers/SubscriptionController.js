@@ -28,7 +28,7 @@ class SubscriptionController {
 
   async update(req, res) {
     const { userId } = req;
-    const { id: meetupId } = req.params;
+    const { meetupId } = req.params;
     const meetup = await Meetup.findByPk(meetupId, {
       include: [
         {
@@ -38,6 +38,12 @@ class SubscriptionController {
         },
       ],
     });
+
+    if (!meetup) {
+      return res.status(404).json({
+        error: 'O meetup não foi encontrado',
+      });
+    }
 
     /**
      * Verifique se o usuário não é provedor
@@ -71,14 +77,14 @@ class SubscriptionController {
       ],
     });
 
-    const checkMeetupSameDateHour = userWithMeetups.meetups.find(
-      currentMeetup => {
+    const checkMeetupSameDateHour = userWithMeetups
+      .toJSON()
+      .meetups.find(currentMeetup => {
         return (
-          isSameDay(parseISO(currentMeetup.date), parseISO(meetup.date)) &&
-          isSameHour(parseISO(currentMeetup.date), parseISO(meetup.date))
+          isSameDay(currentMeetup.date, meetup.date) &&
+          isSameHour(currentMeetup.date, meetup.date)
         );
-      }
-    );
+      });
 
     if (checkMeetupSameDateHour) {
       return res.status(400).json({
@@ -99,11 +105,17 @@ class SubscriptionController {
 
   async delete(req, res) {
     const { userId } = req;
-    const { id: meetupId } = req.params;
+    const { meetupId } = req.params;
     const meetup = await Meetup.findByPk(meetupId);
 
+    if (!meetup) {
+      return res.status(404).json({
+        error: 'O meetup não foi encontrado',
+      });
+    }
+
     if (meetup.provider_id === userId) {
-      return res.json(401).json({
+      return res.status(401).json({
         error: 'O organizador do meetup não pode se inscrever no meetup',
       });
     }
