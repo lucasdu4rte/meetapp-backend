@@ -23,14 +23,6 @@ class SessionController {
 
     const user = await User.findOne({
       where: { email },
-      attributes: ['id', 'name', 'email', 'avatar_id'],
-      include: [
-        {
-          model: File,
-          as: 'avatar',
-          attributes: ['name', 'path', 'url'],
-        },
-      ],
     });
 
     if (!user) {
