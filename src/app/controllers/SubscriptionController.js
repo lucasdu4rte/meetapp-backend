@@ -34,7 +34,9 @@ class SubscriptionController {
      * Verifique se o usuário não é provedor
      */
     if (event.provider_id === userId) {
-      return res.json(401).json({ error: 'User is provider' });
+      return res
+        .status(401)
+        .json({ error: 'Usuário não é o organizador deste evento' });
     }
 
     /**
@@ -43,9 +45,9 @@ class SubscriptionController {
     const hourStart = startOfHour(parseISO(event.date));
 
     if (isAfter(hourStart, new Date())) {
-      return res
-        .status(400)
-        .json({ error: 'Event already held is not allowed to subscribe' });
+      return res.status(400).json({
+        error: 'Evento já realizado não é permitido se inscrever',
+      });
     }
 
     // O usuário não pode se inscrever em dois meetups que acontecem no mesmo horário.
@@ -83,7 +85,9 @@ class SubscriptionController {
     const event = await Event.findByPk(eventId);
 
     if (event.provider_id === userId) {
-      return res.json(401).json({ error: 'User is provider' });
+      return res.json(401).json({
+        error: 'O organizador do evento não pode se inscrever no evento',
+      });
     }
 
     await event.removeUser(userId);

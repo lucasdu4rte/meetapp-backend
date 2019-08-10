@@ -14,13 +14,15 @@ class UserController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Falha na validação, por favor revise seus dados' });
     }
 
     const userExists = await User.findOne({ where: { email: req.body.email } });
 
     if (userExists) {
-      return res.status(400).json({ error: 'User already exists.' });
+      return res.status(400).json({ error: 'Email já cadastrado' });
     }
 
     const { id, name, email, provider } = await User.create(req.body);
@@ -44,7 +46,9 @@ class UserController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Falha na validação, por favor revise seus dados' });
     }
 
     const { email, oldPassword } = req.body;
@@ -57,12 +61,12 @@ class UserController {
       });
 
       if (userExists) {
-        return res.status(400).json({ error: 'User already exists.' });
+        return res.status(400).json({ error: 'Email já cadastrado' });
       }
     }
 
     if (oldPassword && !(await user.checkPassword(oldPassword))) {
-      return res.status(400).json({ error: 'Password does not match.' });
+      return res.status(400).json({ error: 'Senha antiga não corresponde' });
     }
 
     const { id, name, provider } = await user.update(req.body);

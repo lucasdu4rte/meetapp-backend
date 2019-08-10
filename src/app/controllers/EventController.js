@@ -34,7 +34,9 @@ class EventController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res
+        .status(400)
+        .json({ error: 'Falha na validação, por favor revise seus dados' });
     }
 
     const { title, description, localization, date, banner } = req.body;
@@ -46,7 +48,9 @@ class EventController {
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
-      return res.status(400).json({ error: 'Past dates are not permitted' });
+      return res
+        .status(400)
+        .json({ error: 'Não é permitido criar evento com datas passadas' });
     }
 
     const event = await Event.create({
@@ -70,7 +74,9 @@ class EventController {
     });
 
     if (!checkUserIsProvider) {
-      return res.status(401).json({ error: 'User is not a provider' });
+      return res
+        .status(401)
+        .json({ error: 'Usuário não é o organizador deste evento' });
     }
 
     const schema = Yup.object().shape({
@@ -82,7 +88,7 @@ class EventController {
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: 'Falha na validação dos dados' });
     }
 
     const { title, description, localization, date, banner } = req.body;
@@ -93,7 +99,9 @@ class EventController {
     const hourStart = startOfHour(parseISO(date));
 
     if (isBefore(hourStart, new Date())) {
-      return res.status(400).json({ error: 'Past dates are not permitted' });
+      return res
+        .status(400)
+        .json({ error: 'Não é permitido alterar um evento que já realizado' });
     }
 
     const event = await Event.findByPk(id);
@@ -118,14 +126,16 @@ class EventController {
     });
 
     if (!event) {
-      return res.status(404).json({ error: 'Event not found' });
+      return res.status(404).json({ error: 'Evento não encontrado' });
     }
 
     /**
      * Check user is provider of Event
      */
     if (event.provider_id !== userId) {
-      return res.status(401).json({ error: 'User is not a provider' });
+      return res
+        .status(401)
+        .json({ error: 'Usuário não é organizador deste evento' });
     }
 
     /**
@@ -136,7 +146,7 @@ class EventController {
     if (isAfter(hourStart, new Date())) {
       return res
         .status(400)
-        .json({ error: 'Event already held is not allowed edit' });
+        .json({ error: 'Evento já realizado não é permitido editar' });
     }
 
     await event.destroy();
