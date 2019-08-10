@@ -9,7 +9,7 @@ class MeetupController {
 
     const meetups = await Meetup.findAll({
       // where: { provider_id: req.userId },
-      order: ['date'],
+      order: { date: 'desc' },
       limit: 20,
       offset: (page - 1) * 20,
       include: [

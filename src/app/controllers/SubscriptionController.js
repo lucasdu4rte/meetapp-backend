@@ -19,6 +19,7 @@ class SubscriptionController {
           model: Meetup,
           as: 'meetups',
           through: { attributes: [] },
+          // where: { date: }
         },
       ],
     });
