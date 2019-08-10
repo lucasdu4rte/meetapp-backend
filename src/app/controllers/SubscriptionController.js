@@ -88,7 +88,7 @@ class SubscriptionController {
 
     if (checkMeetupSameDateHour) {
       return res.status(400).json({
-        error: 'Não permitido se inscrever em um meetup com o mesmo hórario',
+        error: 'Já está inscrito em outro meetup com o mesmo horário.',
       });
     }
 
@@ -97,7 +97,12 @@ class SubscriptionController {
     await Mail.sendMail({
       to: `${meetup.provider.name} <${meetup.provider.email}>`,
       subject: 'Nova inscrição no Meetup',
-      text: 'Seu Meetup tem um novo inscrito',
+      template: 'subscription',
+      context: {
+        meetup: meetup.title,
+        provider: meetup.provider.name,
+        user: userWithMeetups.name,
+      },
     });
 
     return res.json(meetup);
