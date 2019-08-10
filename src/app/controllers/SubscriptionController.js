@@ -34,9 +34,9 @@ class SubscriptionController {
      * Verifique se o usuário não é provedor
      */
     if (event.provider_id === userId) {
-      return res
-        .status(401)
-        .json({ error: 'Usuário não é o organizador deste evento' });
+      return res.status(401).json({
+        error: 'O organizador do evento não pode se inscrever no evento',
+      });
     }
 
     /**
