@@ -7,6 +7,7 @@ import {
 } from 'date-fns';
 import Meetup from '../models/Meetup';
 import User from '../models/User';
+import Mail from '../../lib/Mail';
 // import User from '../models/User';
 
 class SubscriptionController {
@@ -28,7 +29,15 @@ class SubscriptionController {
   async update(req, res) {
     const { userId } = req;
     const { id: meetupId } = req.params;
-    const meetup = await Meetup.findByPk(meetupId);
+    const meetup = await Meetup.findByPk(meetupId, {
+      include: [
+        {
+          model: User,
+          as: 'provider',
+          attributes: ['name', 'email'],
+        },
+      ],
+    });
 
     /**
      * Verifique se o usuário não é provedor
@@ -78,6 +87,12 @@ class SubscriptionController {
     }
 
     await meetup.addUser(userId);
+
+    await Mail.sendMail({
+      to: `${meetup.provider.name} <${meetup.provider.email}>`,
+      subject: 'Nova inscrição no Meetup',
+      text: 'Seu Meetup tem um novo inscrito',
+    });
 
     return res.json(meetup);
   }

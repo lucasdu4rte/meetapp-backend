@@ -30,7 +30,7 @@ class MeetupController {
       description: Yup.string().required(),
       localization: Yup.string().required(),
       date: Yup.date().required(),
-      banner: Yup.string().required(),
+      banner_id: Yup.number().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -39,7 +39,7 @@ class MeetupController {
         .json({ error: 'Falha na validação, por favor revise seus dados' });
     }
 
-    const { title, description, localization, date, banner } = req.body;
+    const { title, description, localization, date, banner_id } = req.body;
     const { userId } = req;
 
     /**
@@ -58,7 +58,7 @@ class MeetupController {
       description,
       localization,
       date,
-      banner,
+      banner_id,
       provider_id: userId,
     });
 
@@ -84,14 +84,14 @@ class MeetupController {
       description: Yup.string().required(),
       localization: Yup.string().required(),
       date: Yup.date().required(),
-      banner: Yup.string().required(),
+      banner_id: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Falha na validação dos dados' });
     }
 
-    const { title, description, localization, date, banner } = req.body;
+    const { title, description, localization, date, banner_id } = req.body;
 
     /**
      * Verifique se o meetup já foi realizado
@@ -111,7 +111,7 @@ class MeetupController {
       description,
       localization,
       date,
-      banner,
+      banner_id,
     });
 
     return res.json(updatedMeetup);
