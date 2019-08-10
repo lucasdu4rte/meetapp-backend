@@ -23,11 +23,13 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      banner: {
-        type: Sequelize.TEXT,
+      banner_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'files', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
         allowNull: false,
       },
-      // Mudar para Organizador
       provider_id: {
         type: Sequelize.INTEGER,
         references: { model: 'users', key: 'id' },
