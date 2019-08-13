@@ -8,7 +8,6 @@ import {
 import Meetup from '../models/Meetup';
 import User from '../models/User';
 import Mail from '../../lib/Mail';
-// import User from '../models/User';
 
 class SubscriptionController {
   async index(req, res) {
@@ -18,13 +17,21 @@ class SubscriptionController {
         {
           model: Meetup,
           as: 'meetups',
-          through: { attributes: [] },
-          // where: { date: }
+          attributes: ['id', 'title', 'description', 'localization', 'date'],
+          through: {
+            attributes: [],
+          },
+          order: [['date', 'DESC']],
         },
       ],
     });
 
-    return res.json(userWithMeetups.meetups);
+    return res.json(
+      userWithMeetups.toJSON().meetups.map(meetup => ({
+        ...meetup,
+        available: isAfter(meetup.date, new Date()),
+      }))
+    );
   }
 
   async update(req, res) {
