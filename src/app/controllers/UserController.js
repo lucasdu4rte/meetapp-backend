@@ -1,6 +1,8 @@
 import * as Yup from 'yup';
+import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import File from '../models/File';
+import authConfig from '../../config/auth';
 
 class UserController {
   async index(req, res) {
@@ -43,7 +45,16 @@ class UserController {
 
     const { id, name, email } = await User.create(req.body);
 
-    return res.json({ id, name, email });
+    return res.json({
+      user: {
+        id,
+        name,
+        email,
+      },
+      token: jwt.sign({ id }, authConfig.secret, {
+        expiresIn: authConfig.expiresIn,
+      }),
+    });
   }
 
   async update(req, res) {
