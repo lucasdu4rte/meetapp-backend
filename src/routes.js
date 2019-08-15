@@ -23,6 +23,7 @@ routes.get('/users', UserController.index);
 routes.put('/users', UserController.update);
 
 routes.get('/meetups', MeetupController.index);
+routes.get('/meetups/:id', MeetupController.show);
 routes.post('/meetups', MeetupController.store);
 routes.put('/meetups/:id', MeetupController.update);
 routes.delete('/meetups/:id', MeetupController.destroy);
