@@ -3,7 +3,6 @@ import {
   startOfHour,
   parseISO,
   isBefore,
-  isAfter,
   endOfDay,
   startOfDay,
 } from 'date-fns';
@@ -164,7 +163,7 @@ class MeetupController {
     });
 
     if (!meetup) {
-      return res.status(404).json({ error: 'meetup não encontrado' });
+      return res.status(404).json({ error: 'Meetup não encontrado' });
     }
 
     /**
@@ -179,12 +178,11 @@ class MeetupController {
     /**
      * Check if the meetup has already been held
      */
-    const hourStart = startOfHour(parseISO(meetup.date));
-
-    if (isAfter(hourStart, new Date())) {
+    const hourStart = startOfHour(meetup.date);
+    if (isBefore(hourStart, new Date())) {
       return res
         .status(400)
-        .json({ error: 'Meetup já realizado não é permitido editar' });
+        .json({ error: 'Meetup já realizado não é permitido cancelar' });
     }
 
     await meetup.destroy();
